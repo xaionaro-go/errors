@@ -23,5 +23,16 @@ func (err smartError) ToError() error {
 }
 
 var (
-	ErrNotImplemented = smartError{error: fmt.Errorf("Not implemented (yet?)")}
+	NotImplemented = smartError{error: fmt.Errorf("Not implemented (yet?)")}
+	UnableToConnect = smartError{error: fmt.Errorf("Unable to connect")}
+	ProtocolMismatch = smartError{error: fmt.Errorf("Protocol mismatch")}
+	NotFound = smartError{error: fmt.Errorf("Not found")}
+	OutOfRange = smartError{error: fmt.Errorf("Out of range")}
+	CannotResolveAddress = smartError{error: fmt.Errorf("Cannot resolve the address")}
+	CannotWriteToFile = smartError{error: fmt.Errorf("Cannot write to the file")}
+	CannotParseFile = smartError{error: fmt.Errorf("Cannot parse the file")}
+	CannotOpenFile = smartError{error: fmt.Errorf("Cannot open the file")}
+	UnableToGetKey = smartError{error: fmt.Errorf("Unable to get a key")}
+	UnableToStartSession = smartError{error: fmt.Errorf("Unable to start a session")}
+	UnableToListen = smartError{error: fmt.Errorf("Unable to start listening")}
 )
