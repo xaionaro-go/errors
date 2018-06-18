@@ -2,6 +2,7 @@ package errors
 
 import (
 	"fmt"
+	"strings"
 )
 
 type SmartError interface {
@@ -29,7 +30,11 @@ func (err smartError) Error() (result string) {
 		if idx > 0 {
 			prefix = "caused by: "
 		}
-		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.error.Error(), smartErr.args)
+		var argStrs []string
+		for _, arg := range smartErr.args {
+			argStrs = append(argStrs, fmt.Sprintf("%v", arg))
+		}
+		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.error.Error(), "[ "+strings.Join(argStrs, " | ")+" ]")
 	}
 	traceback := errorStack[len(errorStack)-1].Traceback()
 	if traceback != nil {

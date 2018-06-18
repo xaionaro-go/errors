@@ -17,7 +17,7 @@ const (
 func writeToLogFile(str string) error {
 	f, err := os.OpenFile(LOGFILE_PATH, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0640)
 	if err != nil {
-		return errors.CannotOpenFile.New(err, LOGFILE_PATH)
+		return errors.CannotOpenFile.New(err, "some comment here", "also we can pass the file path, for example", LOGFILE_PATH)
 	}
 	defer f.Close()
 
@@ -58,14 +58,14 @@ func main() {
 ```
 
 ```
-$ go run example/main.go 
-panic: Cannot send the data: [hello]
-caused by: Cannot write to the file: [hello]
-caused by: Cannot open the file: [/wrong/path/hello.txt]
+$ go run example/main.go
+panic: Cannot send the data: [ hello ]
+caused by: Cannot write to the file: [ hello ]
+caused by: Cannot open the file: [ open /wrong/path/hello.txt: no such file or directory | /wrong/path/hello.txt ]
 The traceback of the initial error:
-main.writeToLogFile(0x4b8f01, 0x5, 0x0, 0x0)
+main.writeToLogFile(0x4b8f0a, 0x5, 0x0, 0x0)
         /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:18 +0xf7
-main.sendString(0x4b8f01, 0x5, 0xc4200aa101, 0xc4200960f0)
+main.sendString(0x4b8f0a, 0x5, 0xc420012401, 0xc42000e2a0)
         /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:29 +0x4d
 main.doTheMagic(0x19, 0x19)
         /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:38 +0x3a

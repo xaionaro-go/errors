@@ -15,7 +15,7 @@ const (
 func writeToLogFile(str string) error {
 	f, err := os.OpenFile(LOGFILE_PATH, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0640)
 	if err != nil {
-		return errors.CannotOpenFile.New(err, LOGFILE_PATH)
+		return errors.CannotOpenFile.New(err, "some comment here", "also we can pass the file path, for example", LOGFILE_PATH)
 	}
 	defer f.Close()
 
