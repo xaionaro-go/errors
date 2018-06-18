@@ -43,6 +43,8 @@ func (err *smartError) New(prevErr error, args ...interface{}) SmartError {
 	parentSmartErr, ok := prevErr.(*smartError)
 	if ok {
 		newErr.parent = parentSmartErr
+	} else {
+		args = append([]interface{}{prevErr}, args...)
 	}
 
 	newErr.args = args
