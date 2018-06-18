@@ -61,11 +61,11 @@ func main() {
 $ go run example/main.go
 panic: Cannot send the data: [ hello ]
 caused by: Cannot write to the file: [ hello ]
-caused by: Cannot open the file: [ open /wrong/path/hello.txt: no such file or directory | /wrong/path/hello.txt ]
+caused by: Cannot open the file: [ open /wrong/path/hello.txt: no such file or directory | some comment here | also we can pass the file path, for example | /wrong/path/hello.txt ]
 The traceback of the initial error:
-main.writeToLogFile(0x4b8f0a, 0x5, 0x0, 0x0)
-        /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:18 +0xf7
-main.sendString(0x4b8f0a, 0x5, 0xc420012401, 0xc42000e2a0)
+main.writeToLogFile(0x4b8faa, 0x5, 0x0, 0x0)
+        /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:18 +0x139
+main.sendString(0x4b8faa, 0x5, 0xc420012401, 0xc42000e2a0)
         /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:29 +0x4d
 main.doTheMagic(0x19, 0x19)
         /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:38 +0x3a
