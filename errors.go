@@ -18,4 +18,5 @@ var (
 	UnableToGetKey       SmartError = &smartError{error: fmt.Errorf("Unable to get a key")}
 	UnableToStartSession SmartError = &smartError{error: fmt.Errorf("Unable to start a session")}
 	UnableToListen       SmartError = &smartError{error: fmt.Errorf("Unable to start listening")}
+	UnableToParse        SmartError = &smartError{error: fmt.Errorf("Unable to parse")}
 )

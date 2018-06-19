@@ -7,11 +7,13 @@ import (
 
 type SmartError interface {
 	error
+	ErrorShort() string
 	New(parentError error, args ...interface{}) SmartError
 	ToOriginal() SmartError
 	Traceback() Traceback
 	InitialError() SmartError
 	ErrorStack() []SmartError
+	SetCutOffFirstNLinesOfTraceback(value int) SmartError
 }
 
 type smartError struct {
@@ -22,6 +24,18 @@ type smartError struct {
 	original  *smartError
 }
 
+func argsToStr(args []interface{}) string {
+	var argStrs []string
+	for _, arg := range args {
+		argStrs = append(argStrs, fmt.Sprintf("%v", arg))
+	}
+	return "[ "+strings.Join(argStrs, " | ")+" ]"
+}
+
+func (err smartError) ErrorShort() (result string) {
+	return fmt.Sprintf("%v: %v", err.error, argsToStr(err.args))
+}
+
 func (err smartError) Error() (result string) {
 	errorStack := err.ErrorStack()
 	for idx, oneError := range errorStack {
@@ -30,11 +44,7 @@ func (err smartError) Error() (result string) {
 		if idx > 0 {
 			prefix = "caused by: "
 		}
-		var argStrs []string
-		for _, arg := range smartErr.args {
-			argStrs = append(argStrs, fmt.Sprintf("%v", arg))
-		}
-		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.error.Error(), "[ "+strings.Join(argStrs, " | ")+" ]")
+		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.error.Error(), argsToStr(smartErr.args))
 	}
 	traceback := errorStack[len(errorStack)-1].Traceback()
 	if traceback != nil {
@@ -56,6 +66,11 @@ func (err *smartError) New(prevErr error, args ...interface{}) SmartError {
 	newErr.traceback = newTraceback()
 	newErr.original = err
 	return &newErr
+}
+
+func (err smartError) SetCutOffFirstNLinesOfTraceback(value int) SmartError {
+	err.traceback = err.traceback.(*traceback).setCutOffFirstNLines(value)
+	return &err
 }
 
 func (err smartError) ErrorStack() (result []SmartError) {
