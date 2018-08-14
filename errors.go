@@ -16,8 +16,11 @@ var (
 	CannotOpenFile        SmartError = &smartError{error: fmt.Errorf(`Cannot open the file`)}
 	CannotSendData        SmartError = &smartError{error: fmt.Errorf(`Cannot send the data`)}
 	CannotSetRLimitNoFile SmartError = &smartError{error: fmt.Errorf(`Cannot set limit "nofile"`)}
+	CannotFetchData       SmartError = &smartError{error: fmt.Errorf(`Cannot fetch the data`)}
 	UnableToGetKey        SmartError = &smartError{error: fmt.Errorf(`Unable to get a key`)}
 	UnableToStartSession  SmartError = &smartError{error: fmt.Errorf(`Unable to start a session`)}
 	UnableToListen        SmartError = &smartError{error: fmt.Errorf(`Unable to start listening`)}
 	UnableToParse         SmartError = &smartError{error: fmt.Errorf(`Unable to parse`)}
+	UnableToFetchData     SmartError = &smartError{error: fmt.Errorf(`Unable to fetch the data`)}
+	UnexpectedInput       SmartError = &smartError{error: fmt.Errorf(`Unexpected input`)}
 )
