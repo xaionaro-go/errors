@@ -21,5 +21,6 @@ var (
 	UnableToListen        SmartError = &smartError{error: fmt.Errorf(`Unable to start listening`)}
 	UnableToParse         SmartError = &smartError{error: fmt.Errorf(`Unable to parse`)}
 	UnableToFetchData     SmartError = &smartError{error: fmt.Errorf(`Unable to fetch the data`)}
+	UnableToProcessData   SmartError = &smartError{error: fmt.Errorf(`Unable to process the data`)}
 	UnexpectedInput       SmartError = &smartError{error: fmt.Errorf(`Unexpected input`)}
 )
