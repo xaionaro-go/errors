@@ -1,5 +1,3 @@
-See also [github.com/pkg/errors](https://github.com/pkg/errors).
-
 `example/main.go`:
 ```go
 package main
@@ -80,3 +78,5 @@ main.main()
         /home/xaionaro/gocode/src/github.com/xaionaro-go/errors/example/main.go:49 +0x19c
 exit status 2
 ```
+
+See also a well-known solution of the same problem: [github.com/pkg/errors](https://github.com/pkg/errors).
