@@ -1,3 +1,5 @@
+See also [github.com/pkg/errors](https://github.com/pkg/errors).
+
 `example/main.go`:
 ```go
 package main
