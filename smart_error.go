@@ -32,8 +32,31 @@ func argsToStr(args []interface{}) string {
 	return "[ "+strings.Join(argStrs, " | ")+" ]"
 }
 
+func (err smartError) getError() error {
+	if err.error != nil {
+		return err.error
+	}
+	if err.parent != nil {
+		return err.parent.getError()
+	}
+	if len(err.args) > 0 {
+		initialError, ok := err.args[0].(error)
+		if ok {
+			return initialError
+		}
+	}
+
+	return fmt.Errorf("%v", err.args)
+}
+
 func (err smartError) ErrorShort() (result string) {
-	return fmt.Sprintf("%v: %v", err.error, argsToStr(err.args))
+	printError := err.getError()
+	if len(err.args) > 0 {
+		if err.args[0] == printError {
+			err.args = err.args[1:]
+		}
+	}
+	return fmt.Sprintf("%v: %v", err.getError(), argsToStr(err.args))
 }
 
 func (err smartError) Error() (result string) {
@@ -44,7 +67,7 @@ func (err smartError) Error() (result string) {
 		if idx > 0 {
 			prefix = "caused by: "
 		}
-		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.error.Error(), argsToStr(smartErr.args))
+		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.getError().Error(), argsToStr(smartErr.args))
 	}
 	traceback := errorStack[len(errorStack)-1].Traceback()
 	if traceback != nil {
@@ -100,4 +123,38 @@ func (err smartError) Traceback() Traceback {
 
 func (err smartError) ToOriginal() SmartError {
 	return err.original
+}
+
+func Wrap(prevErr error, args ...interface{}) SmartError {
+	if prevErr == nil {
+		return nil
+	}
+
+	newErr := *SomeError.(*smartError)
+	parentSmartErr, ok := prevErr.(*smartError)
+	if ok {
+		newErr.parent = parentSmartErr
+	} else {
+		args = append([]interface{}{prevErr}, args...)
+	}
+
+	newErr.args = args
+	newErr.traceback = newTraceback()
+	newErr.original = SomeError.(*smartError)
+	return &newErr
+}
+
+func New(prevErr error, args ...interface{}) SmartError {
+	newErr := *SomeError.(*smartError)
+	parentSmartErr, ok := prevErr.(*smartError)
+	if ok {
+		newErr.parent = parentSmartErr
+	} else {
+		args = append([]interface{}{prevErr}, args...)
+	}
+
+	newErr.args = args
+	newErr.traceback = newTraceback()
+	newErr.original = SomeError.(*smartError)
+	return &newErr
 }

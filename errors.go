@@ -5,6 +5,7 @@ import (
 )
 
 var (
+	SomeError             SmartError = &smartError{error: nil}
 	NotImplemented        SmartError = &smartError{error: fmt.Errorf(`Not implemented (yet?)`)}
 	UnableToConnect       SmartError = &smartError{error: fmt.Errorf(`Unable to connect`)}
 	ProtocolMismatch      SmartError = &smartError{error: fmt.Errorf(`Protocol mismatch`)}
