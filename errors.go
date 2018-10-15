@@ -24,4 +24,5 @@ var (
 	UnableToFetchData     SmartError = &smartError{error: fmt.Errorf(`Unable to fetch the data`)}
 	UnableToProcessData   SmartError = &smartError{error: fmt.Errorf(`Unable to process the data`)}
 	UnexpectedInput       SmartError = &smartError{error: fmt.Errorf(`Unexpected input`)}
+	DBNotInitialized      SmartError = &smartError{error: fmt.Errorf(`DB is not initialized`)}
 )
