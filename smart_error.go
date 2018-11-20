@@ -14,6 +14,7 @@ type SmartError interface {
 	InitialError() SmartError
 	ErrorStack() []SmartError
 	SetCutOffFirstNLinesOfTraceback(value int) SmartError
+	Wrap(...interface{}) SmartError
 }
 
 type smartError struct {
@@ -123,6 +124,15 @@ func (err smartError) Traceback() Traceback {
 
 func (err smartError) ToOriginal() SmartError {
 	return err.original
+}
+
+func (err smartError) Wrap(args ...interface{}) SmartError {
+	newErr := *SomeError.(*smartError)
+	newErr.parent = &err
+	newErr.args = args
+	newErr.traceback = newTraceback()
+	newErr.original = SomeError.(*smartError)
+	return &newErr
 }
 
 func Wrap(prevErr error, args ...interface{}) SmartError {
