@@ -8,7 +8,7 @@ import (
 type SmartError interface {
 	error
 	ErrorShort() string
-	New(parentError error, args ...interface{}) SmartError
+	New(parentError interface{}, args ...interface{}) SmartError
 	ToOriginal() SmartError
 	Traceback() Traceback
 	InitialError() SmartError
@@ -76,7 +76,7 @@ func (err smartError) Error() (result string) {
 	return
 }
 
-func (err *smartError) New(prevErr error, args ...interface{}) SmartError {
+func (err *smartError) New(prevErr interface{}, args ...interface{}) SmartError {
 	newErr := *err
 	parentSmartErr, ok := prevErr.(*smartError)
 	if ok {
