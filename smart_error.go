@@ -144,7 +144,7 @@ func Wrap(prevErr error, args ...interface{}) SmartError {
 	return &newErr
 }
 
-func New(prevErr error, args ...interface{}) SmartError {
+func New(prevErr interface{}, args ...interface{}) SmartError {
 	newErr := *SomeError.(*smartError)
 	parentSmartErr, ok := prevErr.(*smartError)
 	if ok {
