@@ -15,7 +15,7 @@ type Traceback interface {
 
 type traceback struct {
 	cutOffFirstNLines int
-	data []byte
+	data              []byte
 }
 
 func newTraceback() *traceback {

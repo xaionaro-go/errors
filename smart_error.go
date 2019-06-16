@@ -30,7 +30,7 @@ func argsToStr(args []interface{}) string {
 	for _, arg := range args {
 		argStrs = append(argStrs, fmt.Sprintf("%v", arg))
 	}
-	return "[ "+strings.Join(argStrs, " | ")+" ]"
+	return "[ " + strings.Join(argStrs, " | ") + " ]"
 }
 
 func (err smartError) getError() error {
