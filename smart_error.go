@@ -26,11 +26,14 @@ type smartError struct {
 }
 
 func argsToStr(args []interface{}) string {
+	if len(args) == 0 {
+		return ""
+	}
 	var argStrs []string
 	for _, arg := range args {
 		argStrs = append(argStrs, fmt.Sprintf("%v", arg))
 	}
-	return "[ " + strings.Join(argStrs, " | ") + " ]"
+	return ": [ " + strings.Join(argStrs, " | ") + " ]"
 }
 
 func (err smartError) getError() error {
@@ -62,13 +65,25 @@ func (err smartError) ErrorShort() (result string) {
 
 func (err smartError) Error() (result string) {
 	errorStack := err.ErrorStack()
+	var previousMessage string
 	for idx, oneError := range errorStack {
 		smartErr := oneError.(*smartError)
 		prefix := ""
 		if idx > 0 {
 			prefix = "caused by: "
 		}
-		result += prefix + fmt.Sprintf("%v: %v\n", smartErr.getError().Error(), argsToStr(smartErr.args))
+		args := smartErr.args
+		if smartErr.parent == nil && len(args) == 1 {
+			if _, ok := args[0].(error); ok {
+				args = nil
+			}
+		}
+		message := prefix + fmt.Sprintf("%v%v\n", smartErr.getError().Error(), argsToStr(args))
+		if message == previousMessage {
+			continue
+		}
+		previousMessage = message
+		result += message
 	}
 	traceback := errorStack[len(errorStack)-1].Traceback()
 	if traceback != nil {
@@ -79,8 +94,7 @@ func (err smartError) Error() (result string) {
 
 func (err *smartError) New(prevErr interface{}, args ...interface{}) SmartError {
 	newErr := *err
-	parentSmartErr, ok := prevErr.(*smartError)
-	if ok {
+	if parentSmartErr, ok := prevErr.(*smartError); ok {
 		newErr.parent = parentSmartErr
 	} else {
 		args = append([]interface{}{prevErr}, args...)
