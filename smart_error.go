@@ -12,6 +12,7 @@ type SmartError interface {
 	ToOriginal() SmartError
 	Traceback() Traceback
 	InitialError() SmartError
+	OriginalError() error
 	ErrorStack() []SmartError
 	SetCutOffFirstNLinesOfTraceback(value int) SmartError
 	Wrap(...interface{}) SmartError
@@ -36,12 +37,12 @@ func argsToStr(args []interface{}) string {
 	return ": [ " + strings.Join(argStrs, " | ") + " ]"
 }
 
-func (err smartError) getError() error {
+func (err smartError) OriginalError() error {
 	if err.error != nil {
 		return err.error
 	}
 	if err.parent != nil {
-		return err.parent.getError()
+		return err.parent.OriginalError()
 	}
 	if len(err.args) > 0 {
 		initialError, ok := err.args[0].(error)
@@ -54,13 +55,13 @@ func (err smartError) getError() error {
 }
 
 func (err smartError) ErrorShort() (result string) {
-	printError := err.getError()
+	printError := err.OriginalError()
 	if len(err.args) > 0 {
 		if err.args[0] == printError {
 			err.args = err.args[1:]
 		}
 	}
-	return fmt.Sprintf("%v: %v", err.getError(), argsToStr(err.args))
+	return fmt.Sprintf("%v: %v", err.OriginalError(), argsToStr(err.args))
 }
 
 func (err smartError) Error() (result string) {
@@ -78,7 +79,7 @@ func (err smartError) Error() (result string) {
 				args = nil
 			}
 		}
-		message := prefix + fmt.Sprintf("%v%v\n", smartErr.getError().Error(), argsToStr(args))
+		message := prefix + fmt.Sprintf("%v%v\n", smartErr.OriginalError().Error(), argsToStr(args))
 		if message == previousMessage {
 			continue
 		}
