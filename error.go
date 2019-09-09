@@ -37,6 +37,7 @@ type Interface interface {
 	GetErr() error
 	GetWrappedError() *Error
 	SetFormat(newFormat string)
+	WithFormat(newFormat string) *Error
 }
 
 type Error struct {
@@ -57,6 +58,11 @@ func (err *Error) GetWrappedError() *Error {
 
 func (err *Error) SetFormat(newFormat string) {
 	err.Format = newFormat
+}
+
+func (err Error) WithFormat(newFormat string) *Error {
+	err.Format = newFormat
+	return &err
 }
 
 func (err *Error) Is(cmp error) bool {
@@ -218,6 +224,11 @@ func Wrap(prevErr error, args ...interface{}) Interface {
 	var err *Error
 	if len(args) > 0 {
 		err, _ = args[0].(*Error)
+		if err != nil {
+			if err.Traceback != nil {
+				err = nil
+			}
+		}
 		if err != nil {
 			args = args[1:]
 		}
