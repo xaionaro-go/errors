@@ -74,7 +74,7 @@ func (err *Error) Is(cmp error) bool {
 func (err *Error) Has(cmp error) bool {
 	curErr := err
 	for curErr != nil {
-		if err.Err == cmp {
+		if curErr.Err == cmp {
 			return true
 		}
 		curErr = curErr.WrappedError
