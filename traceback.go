@@ -9,26 +9,22 @@ const (
 	cutOffFirstNLinesOfTraceback = 7
 )
 
-type Traceback interface {
-	String() string
+type Traceback struct {
+	CutOffFirstNLines int
+	Data              []byte
 }
 
-type traceback struct {
-	cutOffFirstNLines int
-	data []byte
+func newTraceback() *Traceback {
+	return &Traceback{Data: debug.Stack(), CutOffFirstNLines: cutOffFirstNLinesOfTraceback}
 }
 
-func newTraceback() *traceback {
-	return &traceback{data: debug.Stack(), cutOffFirstNLines: cutOffFirstNLinesOfTraceback}
-}
-
-func (traceback traceback) setCutOffFirstNLines(cutOffFirstNLines int) *traceback {
-	traceback.cutOffFirstNLines = cutOffFirstNLines
+func (traceback Traceback) setCutOffFirstNLines(cutOffFirstNLines int) *Traceback {
+	traceback.CutOffFirstNLines = cutOffFirstNLines
 	return &traceback
 }
 
-func (traceback traceback) String() string {
-	stackString := string(traceback.data)
+func (traceback Traceback) String() string {
+	stackString := string(traceback.Data)
 	stackLines := strings.Split(stackString, "\n")
-	return strings.Join(stackLines[traceback.cutOffFirstNLines:], "\n")
+	return strings.Join(stackLines[traceback.CutOffFirstNLines:], "\n")
 }
