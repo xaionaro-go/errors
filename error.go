@@ -27,12 +27,36 @@ var (
 	formatRegexp_lTC    = regexp.MustCompile(`{%lTC[^}]*%}`)
 )
 
+type Interface interface {
+	Is(cmp error) bool
+	Has(cmp error) bool
+	Deepest() *Error
+	Unwrap() error
+	Error() string
+	Wrap(args ...interface{}) Interface
+	GetErr() error
+	GetWrappedError() *Error
+	SetFormat(newFormat string)
+}
+
 type Error struct {
 	Args         []interface{}
 	Err          error
 	WrappedError *Error
 	Traceback    *Traceback
 	Format       string
+}
+
+func (err *Error) GetErr() error {
+	return err.Err
+}
+
+func (err *Error) GetWrappedError() *Error {
+	return err.WrappedError
+}
+
+func (err *Error) SetFormat(newFormat string) {
+	err.Format = newFormat
 }
 
 func (err *Error) Is(cmp error) bool {
@@ -149,7 +173,7 @@ func (err *Error) Error() string {
 	return strings.NewReplacer(replaceOldNew...).Replace(format)
 }
 
-func (err *Error) Wrap(args ...interface{}) (result *Error) {
+func (err *Error) Wrap(args ...interface{}) Interface {
 	var argErr error
 	if len(args) > 0 {
 		argErr, _ = args[0].(error)
@@ -160,7 +184,7 @@ func (err *Error) Wrap(args ...interface{}) (result *Error) {
 		args = args[1:]
 	}
 
-	result = &[]Error{*err}[0]
+	result := &[]Error{*err}[0]
 
 	result.Args = args
 	result.Traceback = newTraceback()
@@ -168,11 +192,11 @@ func (err *Error) Wrap(args ...interface{}) (result *Error) {
 	if wrappedError, ok := argErr.(*Error); ok && wrappedError.Err != nil {
 		result.Err = err
 		result.WrappedError = wrappedError
-		return
+		return result
 	}
 	if result.Err == nil {
 		result.Err = argErr
-		return
+		return result
 	}
 
 	result.Err = err
@@ -180,10 +204,10 @@ func (err *Error) Wrap(args ...interface{}) (result *Error) {
 		Err:       argErr,
 		Traceback: result.Traceback,
 	}
-	return
+	return result
 }
 
-func Wrap(prevErr error, args ...interface{}) *Error {
+func Wrap(prevErr error, args ...interface{}) Interface {
 	if prevErr == nil {
 		return nil
 	}
