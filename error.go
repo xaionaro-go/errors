@@ -11,7 +11,7 @@ const (
 	FormatOneLine = "{%fEL>0{%fTC(%fT) %}\"%fE\"{%c>1 caused by: %}%}{%c>1{%lTC(%lT) %}\"%lE\"%}{%clA>0 with args: %lA%}"
 
 	FormatFull = FormatOneLine + "\n" +
-		"{%c>1 %aE (%aT)\n%}" +
+		"{%ca>1 %aE (%aT)\n%}" +
 		"\n    The stack-trace of the initial error:\n" +
 		"%lS"
 )
@@ -22,6 +22,7 @@ var (
 
 var (
 	formatRegexp_cgt1   = regexp.MustCompile(`{%c>1([^}]*)%}`)
+	formatRegexp_cagt1  = regexp.MustCompile(`{%ca>1([^}]*)%}`)
 	formatRegexp_clAgt0 = regexp.MustCompile(`{%clA>0([^}]*)%}`)
 	formatRegexp_fTC    = regexp.MustCompile(`{%fTC([^}]*)%}`)
 	formatRegexp_lTC    = regexp.MustCompile(`{%lTC([^}]*)%}`)
@@ -188,6 +189,11 @@ func (err *Error) Error() string {
 		format = formatRegexp_cgt1.ReplaceAllString(format, `${1}`)
 	} else {
 		format = formatRegexp_cgt1.ReplaceAllString(format, ``)
+	}
+	if len(allError) > 1 {
+		format = formatRegexp_cagt1.ReplaceAllString(format, `${1}`)
+	} else {
+		format = formatRegexp_cagt1.ReplaceAllString(format, ``)
 	}
 	if first.Err != nil && first.Err.Error() != `` {
 		format = formatRegexp_fELgt0.ReplaceAllString(format, `${1}`)
