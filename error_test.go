@@ -48,3 +48,11 @@ func TestWrap(t *testing.T) {
 		assert.Equal(t, `"EOF" with args: [io: read/write on closed pipe | unexpected EOF]`, err.Error())
 	}
 }
+
+func TestError(t *testing.T) {
+	err0 := errors.Wrap(io.EOF)
+	err1 := errors.Wrap(io.EOF)
+	assert.Equal(t, `"EOF" with args: [EOF | EOF]`,
+		errors.New(io.EOF.Error(), err0, err1).
+			WithFormat(errors.FormatOneLine).Error())
+}

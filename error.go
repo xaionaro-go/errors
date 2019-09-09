@@ -115,7 +115,13 @@ func (err *Error) Error() string {
 	for errFmt, errInst := range map[string]*Error{`f`: first, `l`: last} {
 		var args []string
 		for _, arg := range errInst.Args {
-			args = append(args, fmt.Sprint(arg))
+			var argMsg string
+			if smartErr, ok := arg.(*Error); ok {
+				argMsg = smartErr.Err.Error()
+			} else {
+				argMsg = fmt.Sprint(arg)
+			}
+			args = append(args, argMsg)
 		}
 		var errMsg string
 		if smartErr, ok := errInst.Err.(*Error); ok {
