@@ -148,8 +148,11 @@ func (err *Error) Error() string {
 
 	cur := first
 	var allError, allType []string
-	for cur != nil {
+	for ; cur != nil; cur = cur.WrappedError {
 		newErr := cur.Err.Error()
+		if newErr == `` {
+			continue
+		}
 		if len(allError) == 0 || newErr != allError[len(allError)-1] {
 			allError = append(allError, newErr)
 		}
@@ -157,7 +160,6 @@ func (err *Error) Error() string {
 		if len(allType) == 0 || newType != allType[len(allType)-1] {
 			allType = append(allType, newType)
 		}
-		cur = cur.WrappedError
 	}
 	reverseStrings(allError)
 	reverseStrings(allType)
