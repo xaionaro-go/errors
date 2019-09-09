@@ -228,7 +228,9 @@ func Wrap(prevErr error, args ...interface{}) Interface {
 		err = &[]Error{*UndefinedError}[0]
 	}
 
-	return err.Wrap(append([]interface{}{prevErr}, args...)...)
+	result := err.Wrap(append([]interface{}{prevErr}, args...)...).(*Error)
+	result.Traceback.CutOffFirstNLines += 2
+	return result
 }
 
 func New(err interface{}, args ...interface{}) *Error {

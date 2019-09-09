@@ -2,6 +2,7 @@ package errors_test
 
 import (
 	"io"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,4 +29,5 @@ func TestWrap(t *testing.T) {
 	}
 
 	assert.Equal(t, nil, errors.Wrap(nil))
+	assert.False(t, strings.Index(errors.Wrap(io.EOF).Error(), "error.go") >= 0)
 }

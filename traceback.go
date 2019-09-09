@@ -18,11 +18,6 @@ func newTraceback() *Traceback {
 	return &Traceback{Data: debug.Stack(), CutOffFirstNLines: cutOffFirstNLinesOfTraceback}
 }
 
-func (traceback Traceback) setCutOffFirstNLines(cutOffFirstNLines int) *Traceback {
-	traceback.CutOffFirstNLines = cutOffFirstNLines
-	return &traceback
-}
-
 func (traceback Traceback) String() string {
 	stackString := string(traceback.Data)
 	stackLines := strings.Split(stackString, "\n")
