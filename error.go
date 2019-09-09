@@ -21,10 +21,10 @@ var (
 )
 
 var (
-	formatRegexp_cgt1   = regexp.MustCompile(`{%c>1[^}]*%}`)
-	formatRegexp_clAgt0 = regexp.MustCompile(`{%clA>0[^}]*%}`)
-	formatRegexp_fTC    = regexp.MustCompile(`{%fTC[^}]*%}`)
-	formatRegexp_lTC    = regexp.MustCompile(`{%lTC[^}]*%}`)
+	formatRegexp_cgt1   = regexp.MustCompile(`{%c>1([^}]*)%}`)
+	formatRegexp_clAgt0 = regexp.MustCompile(`{%clA>0([^}]*)%}`)
+	formatRegexp_fTC    = regexp.MustCompile(`{%fTC([^}]*)%}`)
+	formatRegexp_lTC    = regexp.MustCompile(`{%lTC([^}]*)%}`)
 )
 
 type Interface interface {
@@ -107,9 +107,9 @@ func (err *Error) Error() string {
 	last := err.Deepest()
 
 	for errFmt, errInst := range map[string]*Error{`f`: first, `l`: last} {
-		var args string
-		if len(errInst.Args) > 0 {
-			args = fmt.Sprintf(" %v", errInst.Args)
+		var args []string
+		for _, arg := range errInst.Args {
+			args = append(args, fmt.Sprint(arg))
 		}
 		var errMsg string
 		if smartErr, ok := errInst.Err.(*Error); ok {
@@ -121,8 +121,7 @@ func (err *Error) Error() string {
 			`%`+errFmt+`E`, errMsg,
 			`%`+errFmt+`T`, fmt.Sprintf(`%T`, errInst.Err),
 			`%`+errFmt+`S`, errInst.Traceback.String(),
-			`%`+errFmt+`A`, fmt.Sprint(errInst.Args),
-			`% `+errFmt+`A`, args,
+			`%`+errFmt+`A`, `[`+strings.Join(args, ` | `)+`]`,
 		)
 	}
 
@@ -174,6 +173,10 @@ func (err *Error) Error() string {
 }
 
 func (err *Error) Wrap(args ...interface{}) Interface {
+	if err == nil {
+		err = UndefinedError
+	}
+
 	var argErr error
 	if len(args) > 0 {
 		argErr, _ = args[0].(error)
@@ -212,20 +215,12 @@ func Wrap(prevErr error, args ...interface{}) Interface {
 		return nil
 	}
 
-	var argErr error
+	var err *Error
 	if len(args) > 0 {
-		argErr, _ = args[0].(error)
-
-		if argErr == nil {
-			argErr = errors.New(fmt.Sprint(args...))
-		} else {
+		err, _ = args[0].(*Error)
+		if err != nil {
 			args = args[1:]
 		}
-	}
-
-	err, _ := argErr.(*Error)
-	if err == nil {
-		err = &[]Error{*UndefinedError}[0]
 	}
 
 	result := err.Wrap(append([]interface{}{prevErr}, args...)...).(*Error)

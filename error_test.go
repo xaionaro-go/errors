@@ -35,4 +35,10 @@ func TestWrap(t *testing.T) {
 
 	assert.Equal(t, nil, errors.Wrap(nil))
 	assert.False(t, strings.Index(errors.Wrap(io.EOF).Error(), "error.go") >= 0)
+
+	{
+		err := errors.Wrap(io.EOF, io.ErrClosedPipe, io.ErrUnexpectedEOF)
+		err.SetFormat(errors.FormatOneLine)
+		assert.Equal(t, `"EOF" with args: [io: read/write on closed pipe | unexpected EOF]`, err.Error())
+	}
 }
