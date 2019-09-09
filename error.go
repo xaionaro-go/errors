@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	FormatOneLine = "{%fTC(%fT) %}\"%fE\"{%c>1 caused by: {%lTC(%lT) %}\"%lE\"%}{%clA>0 with args: %lA%}"
+	FormatOneLine = "{%fEL>0{%fTC(%fT) %}\"%fE\"{%c>1 caused by: %}%}{%c>1{%lTC(%lT) %}\"%lE\"%}{%clA>0 with args: %lA%}"
 
 	FormatFull = FormatOneLine + "\n" +
 		"{%c>1 %aE (%aT)\n%}" +
@@ -25,6 +25,7 @@ var (
 	formatRegexp_clAgt0 = regexp.MustCompile(`{%clA>0([^}]*)%}`)
 	formatRegexp_fTC    = regexp.MustCompile(`{%fTC([^}]*)%}`)
 	formatRegexp_lTC    = regexp.MustCompile(`{%lTC([^}]*)%}`)
+	formatRegexp_fELgt0 = regexp.MustCompile(`{%fEL>0([^}]*)%}`)
 )
 
 type Interface interface {
@@ -104,6 +105,9 @@ func reverseStrings(a []string) {
 
 func (err *Error) Error() string {
 	if err.Traceback == nil {
+		if err.Err == nil {
+			return ``
+		}
 		return err.Err.Error()
 	}
 
@@ -117,6 +121,9 @@ func (err *Error) Error() string {
 		for _, arg := range errInst.Args {
 			var argMsg string
 			if smartErr, ok := arg.(*Error); ok {
+				if smartErr.Err == nil {
+					continue
+				}
 				argMsg = smartErr.Err.Error()
 			} else {
 				argMsg = fmt.Sprint(arg)
@@ -125,7 +132,9 @@ func (err *Error) Error() string {
 		}
 		var errMsg string
 		if smartErr, ok := errInst.Err.(*Error); ok {
-			errMsg = smartErr.Err.Error()
+			if smartErr.Err != nil {
+				errMsg = smartErr.Err.Error()
+			}
 		} else {
 			errMsg = errInst.Err.Error()
 		}
@@ -161,12 +170,14 @@ func (err *Error) Error() string {
 	if format == `` {
 		format = DefaultFormat
 	}
-	if fmt.Sprintf(`%T`, first.Err) != `*errors.errorString` {
+	fT := fmt.Sprintf(`%T`, first.Err)
+	if fT != `*errors.errorString` && fT != `*errors.Error` && fT != `` {
 		format = formatRegexp_fTC.ReplaceAllString(format, `${1}`)
 	} else {
 		format = formatRegexp_fTC.ReplaceAllString(format, ``)
 	}
-	if fmt.Sprintf(`%T`, last.Err) != `*errors.errorString` {
+	lT := fmt.Sprintf(`%T`, last.Err)
+	if lT != `*errors.errorString` && lT != `*errors.Error` && lT != `` {
 		format = formatRegexp_lTC.ReplaceAllString(format, `${1}`)
 	} else {
 		format = formatRegexp_lTC.ReplaceAllString(format, ``)
@@ -175,6 +186,11 @@ func (err *Error) Error() string {
 		format = formatRegexp_cgt1.ReplaceAllString(format, `${1}`)
 	} else {
 		format = formatRegexp_cgt1.ReplaceAllString(format, ``)
+	}
+	if first.Err != nil && first.Err.Error() != `` {
+		format = formatRegexp_fELgt0.ReplaceAllString(format, `${1}`)
+	} else {
+		format = formatRegexp_fELgt0.ReplaceAllString(format, ``)
 	}
 	if len(last.Args) > 0 {
 		format = formatRegexp_clAgt0.ReplaceAllString(format, `${1}`)

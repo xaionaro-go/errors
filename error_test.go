@@ -55,4 +55,8 @@ func TestError(t *testing.T) {
 	assert.Equal(t, `"EOF" with args: [EOF | EOF]`,
 		errors.New(io.EOF.Error(), err0, err1).
 			WithFormat(errors.FormatOneLine).Error())
+
+	assert.Equal(t, `"EOF"`,
+		errors.Wrap(errors.Wrap(io.EOF)).
+			WithFormat(errors.FormatOneLine).Error())
 }
