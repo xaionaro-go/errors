@@ -26,6 +26,11 @@ func TestWrap(t *testing.T) {
 		assert.Equal(t, `test`, err.Error())
 		assert.Equal(t, errors.ProtocolMismatch, err.GetWrappedError().GetErr())
 		assert.Equal(t, io.EOF, err.Deepest().GetErr())
+
+		err.SetFormat(``)
+		str0 := err.Error()
+		str1 := err.Error()
+		assert.Equal(t, str0, str1)
 	}
 
 	assert.Equal(t, nil, errors.Wrap(nil))
