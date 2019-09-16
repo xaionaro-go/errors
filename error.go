@@ -68,13 +68,13 @@ func (err Error) WithFormat(newFormat string) *Error {
 }
 
 func (err *Error) Is(cmp error) bool {
-	return err.Err == cmp
+	return err == cmp || err.Err == cmp
 }
 
 func (err *Error) Has(cmp error) bool {
 	curErr := err
 	for curErr != nil {
-		if curErr.Err == cmp {
+		if curErr.Is(cmp) {
 			return true
 		}
 		curErr = curErr.WrappedError
