@@ -246,29 +246,6 @@ func (err *Error) Wrap(args ...interface{}) Interface {
 	return result
 }
 
-func Wrap(prevErr error, args ...interface{}) Interface {
-	if prevErr == nil {
-		return nil
-	}
-
-	var err *Error
-	if len(args) > 0 {
-		err, _ = args[0].(*Error)
-		if err != nil {
-			if err.Traceback != nil {
-				err = nil
-			}
-		}
-		if err != nil {
-			args = args[1:]
-		}
-	}
-
-	result := err.Wrap(append([]interface{}{prevErr}, args...)...).(*Error)
-	result.Traceback.CutOffFirstNLines += 2
-	return result
-}
-
 func New(err interface{}, args ...interface{}) *Error {
 	newErr := &[]Error{*UndefinedError}[0]
 	newErr.Err, _ = err.(error)
