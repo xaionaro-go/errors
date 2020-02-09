@@ -46,7 +46,7 @@ func doTheMagic() error {
 
 func main() {
 	err := doTheMagic()
-	switch err.(errors.SmartError).ToOriginal() {
+	switch err.(*errors.Error).Deepest() {
 	case errors.CannotSendData:
 		panic(err)
 	case errors.ProtocolMismatch:
