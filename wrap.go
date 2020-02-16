@@ -25,6 +25,9 @@ func Wrap(prevErr error, args ...interface{}) Interface {
 
 	result := err.Wrap(append([]interface{}{prevErr}, args...)...).(*Error)
 	result.Traceback.CutOffFirstNLines += 2
+	if prevErrCasted, ok := prevErr.(*Error); ok {
+		result.Format = prevErrCasted.Format
+	}
 	return result
 }
 
