@@ -71,10 +71,14 @@ func (err *Error) Is(cmp error) bool {
 	return err == cmp || err.Err == cmp
 }
 
+func (err *Error) As(cmp error) bool {
+	return err.Is(cmp) || errors.As(err, &cmp) || errors.As(err.Err, &cmp)
+}
+
 func (err *Error) Has(cmp error) bool {
 	curErr := err
 	for curErr != nil {
-		if curErr.Is(cmp) {
+		if curErr.As(cmp) {
 			return true
 		}
 		curErr = curErr.WrappedError
