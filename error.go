@@ -3,6 +3,7 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -71,14 +72,14 @@ func (err *Error) Is(cmp error) bool {
 	return err == cmp || err.Err == cmp
 }
 
-func (err *Error) As(cmp error) bool {
-	return err.Is(cmp) || errors.As(err, &cmp) || errors.As(err.Err, &cmp)
+func (err *Error) CanAs(cmp error) bool {
+	return err.Is(cmp) || reflect.TypeOf(err.Err) == reflect.TypeOf(cmp) || errors.As(err, &cmp) || errors.As(err.Err, &cmp)
 }
 
 func (err *Error) Has(cmp error) bool {
 	curErr := err
 	for curErr != nil {
-		if curErr.As(cmp) {
+		if curErr.CanAs(cmp) {
 			return true
 		}
 		curErr = curErr.WrappedError
