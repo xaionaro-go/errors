@@ -72,15 +72,26 @@ func (err *Error) Is(cmp error) bool {
 	return err == cmp || err.Err == cmp
 }
 
-func (err *Error) CanAs(cmp error) bool {
-	return err.Is(cmp) || reflect.TypeOf(err.Err) == reflect.TypeOf(cmp) || errors.As(err, &cmp) || errors.As(err.Err, &cmp)
+func (err *Error) tryAs(cmp error) bool {
+	if err.Is(cmp) {
+		return true
+	}
+	if _, ok := cmp.(*Error); !ok {
+		return reflect.TypeOf(err.Err) == reflect.TypeOf(cmp)
+	}
+	return false
 }
 
 func (err *Error) Has(cmp error) bool {
 	curErr := err
 	for curErr != nil {
-		if curErr.CanAs(cmp) {
+		if curErr.tryAs(cmp) {
 			return true
+		}
+		if xerr, ok := curErr.Err.(*Error); ok {
+			if xerr.Has(cmp) {
+				return true
+			}
 		}
 		curErr = curErr.WrappedError
 	}
